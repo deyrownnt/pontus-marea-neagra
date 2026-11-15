@@ -1,0 +1,137 @@
+{
+  "coastline": {
+    "source": "GSHHG high-resolution polygons as published by the hosted ArcGIS FeatureServer; source lineage is the GSHHG shoreline database maintained by Wessel & Smith with NOAA involvement.",
+    "fallback_source": "Local shoreline contours traced from the bundled 2048 × 1495 GSHHS-intermediate water mask; 82 contour paths and 3,661 WGS84 vertices. The live GSHHG high-resolution vector layer replaces this fallback when the service is available.",
+    "bounds": [
+      26.0,
+      39.0,
+      43.0,
+      48.0
+    ],
+    "coordinate_reference": "WGS84 geographic coordinates (longitude, latitude)",
+    "runtime_method": "ArcGIS FeatureServer query for polygon features intersecting the Black Sea regional bounding box; polygons are rasterized to the local water mask and their L1 edges are rendered as a high-resolution line buffer",
+    "hierarchy": "GSHHG levels L1 land/ocean, L2 lake/land, L3 island-in-lake/lake, L4 pond/island",
+    "fallback_segments": 82,
+    "fallback_vertices": 3661,
+    "quality_note": "Live GSHHG high-resolution vectors provide the most detailed available coastline layer. The bundled contour fallback preserves the exact outline of the local GSHHS-intermediate mask at its native raster scale. Neither layer is a cadastral or hydrographic-navigation survey. The runtime feature query is optional and bounded per request; the bundled intermediate-resolution mask remains available when the network, service, or browser CORS policy prevents the high-resolution update.",
+    "release_note": "The hosted FeatureServer page describes the layer as GSHHG/GSHHS high resolution; a precise package version is not asserted by this project."
+  },
+  "relief_texture": {
+    "source": "ETOPO1 shaded-relief image bundled with the Basemap data package",
+    "native_crop_pixels": [
+      255,
+      135
+    ],
+    "export_pixels": [
+      4096,
+      2989
+    ],
+    "note": "The 4K-wide albedo export is resampled from a 255 × 135 native ETOPO1 crop and is used only as a local visual fallback for surrounding terrain; it is not a numerical elevation/bathymetry DEM. The hillshade layer is separately requested in WGS84 geographic coordinates and clipped to the live/fallback land mask before display, so its UV extent matches the geographic terrain mesh.",
+    "detail_albedo": "black-sea-relief-albedo-detail.webp: a gentle contrast/sharpness treatment of the same source texture; no new geographic data or synthetic coastlines are added.",
+    "detail_normal": "black-sea-terrain-detail-normal.webp: a tangent-space display normal map built from the bundled low-resolution height fallback with restrained procedural micro-material detail over land. It affects shading only and must not be read as new elevation data."
+  },
+  "bathymetry_overlay": {
+    "source": "EMODnet Bathymetry WMS",
+    "layer": "emodnet:mean_multicolour",
+    "url": "https://ows.emodnet-bathymetry.eu/wms",
+    "documentation": "https://emodnet.ec.europa.eu/en/emodnet-web-service-documentation",
+    "requested_pixels": [
+      3072,
+      2240
+    ],
+    "note": "Live color map overlay draped on the water surface; requires internet and browser CORS support."
+  },
+  "bathymetry_numeric": {
+    "source": "EMODnet Bathymetry Web Coverage Service (WCS)",
+    "coverage": "emodnet:mean",
+    "endpoint": "https://ows.emodnet-bathymetry.eu/wcs",
+    "documentation": "https://emodnet.ec.europa.eu/en/emodnet-web-service-documentation",
+    "requested_bounds": [
+      26.0,
+      39.0,
+      43.0,
+      48.0
+    ],
+    "requested_grid_arcseconds": 15,
+    "client_mesh": {
+      "high_end_desktop": [
+        1537,
+        1122
+      ],
+      "standard_desktop": [
+        1025,
+        748
+      ],
+      "coarse_pointer": [
+        513,
+        374
+      ]
+    },
+    "processing": "The full GeoTIFF returned by the requested 15-arcsecond WCS grid is retained at its native response dimensions, then bilinearly sampled onto the projected terrain mesh in animation-frame batches. Isobaths are generated from that same native response grid. Source cells retain variable provenance and resolution; a 15-arcsecond request does not assert that each cell is a direct survey at that spacing.",
+    "quality_note": "The 15-arcsecond WCS output is a browser-side resampling choice, not the native 2024 product grid. The published EMODnet DTM resolution is 1/16 × 1/16 arc minutes (about 115 × 115 m north-south), while individual cells may derive from different surveys, composite DTMs, satellite-derived bathymetry or gap-filling products. Consult source-reference and quality layers for local cell provenance. This educational map is not a navigation chart.",
+    "requested_grid_note": "The 15-arcsecond WCS output grid is retained in full before mesh sampling. The rendered mesh remains an adaptive real-time representation, not one vertex per source raster cell.",
+    "source_native_resolution": "EMODnet Bathymetry DTM 2024: 1/16 × 1/16 arc minutes (published gridded resolution for European seas); individual cells retain varied source lineage and quality.",
+    "browser_sampling_resolution": "15 arc-seconds requested for browser WCS sampling to keep the full regional raster within a practical memory and transfer budget; the browser raster is therefore resampled more coarsely than the 2024 native grid.",
+    "request_safety": "The optional EMODnet WCS request has a 30-second timeout, a 64 MB response cap, a maximum 16 million raster pixels, dimension checks and exact regional-bounds checks. WMS color overlay is independent and has a 12-second timeout plus a 32 MB cap."
+  },
+  "geometry": {
+    "projection": "WGS84 Lambert Conformal Conic, two standard parallels (40°N and 47°N), central meridian 34.5°E and latitude of origin 43.5°N. All terrain vertices, coastlines, grid lines, bathymetric contours, ports, labels, itinerary points and the inset chart use this one projection.",
+    "regional_bounds": [
+      26.0,
+      39.0,
+      43.0,
+      48.0
+    ],
+    "high_end_desktop_grid": "2049 × approximately 1435 vertices (chunk-built; exact ratio computed from WGS84 LCC projected bounds)",
+    "standard_desktop_grid": "1409 × approximately 986 vertices (chunk-built; exact ratio computed from WGS84 LCC projected bounds)",
+    "coarse_pointer_grid": "705 × approximately 493 vertices (chunk-built; exact ratio computed from WGS84 LCC projected bounds)",
+    "chart_inset": "Uses the same projected geographic surface geometry and UV mapping as the full map; the route is transformed through the same WGS84 projection.",
+    "vertical_exaggeration": "The numeric EMODnet elevation is clamped and multiplied by 0.00016 model units per metre for legibility. This is a visual vertical exaggeration and is not a physical scale model.",
+    "note": "The map is an educational regional visualization, not a navigation chart. High visual mesh density does not create finer source data than the underlying DEM, and the local land-relief fallback remains coarser than the live coastline and bathymetry layers.",
+    "working_coastline_mask_pixels": "3072 × source-aspect height on desktop; 2048 × source-aspect height on coarse-pointer devices; high-resolution GSHHG vectors are rasterized to this working mask.",
+    "mesh_update_pipeline": "Land DEM and numeric bathymetry are applied to the same WGS84/LCC vertex buffer through a serialized queue. Normals are recalculated in row batches after each complete raster update; updates yield to the browser between batches. Optional source updates are serialized after the local scene is visible; raster requests have response-size and pixel-count caps. Page visibility and back-forward-cache restoration settle any in-flight scene crossfade before resuming the renderer.",
+    "quality_note": "High mesh density is used to sample the available raster surfaces smoothly; it does not increase source-data accuracy. Geographic placement is consistently projected from WGS84 coordinates. This educational map is not a navigation chart.",
+    "accuracy_note": "All geographic layers use one WGS84 Lambert Conformal Conic transform over 26–43°E and 39–48°N. GSHHG coastline vectors and EMODnet bathymetry retain their distinct source qualities. The requested raster spacing and rendering mesh density are not claims of uniform survey accuracy; the offline ETOPO1-derived land fallback is visual only."
+  },
+  "land_topography": {
+    "live_source": "ArcGIS WorldElevation3D Terrain3D ImageServer exportImage",
+    "endpoint": "https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer/exportImage",
+    "requested_bounds": [
+      26.0,
+      39.0,
+      43.0,
+      48.0
+    ],
+    "coordinate_reference": "WGS84 geographic coordinates (EPSG:4326)",
+    "requested_grid_pixels": [
+      "4080 × 2160 desktop",
+      "2040 × 1080 coarse-pointer/mobile"
+    ],
+    "format": "GeoTIFF F32 elevation raster",
+    "processing": "Numeric elevation is bilinearly sampled onto the projected terrain grid only for land cells; the WGS84 GSHHG coastline mask separates land from water. The image-server source resolution and data provenance vary spatially and are not asserted to be uniform.",
+    "local_fallback": "ETOPO1 shaded-relief-derived visual height proxy from the bundled 255 × 135 native regional crop; visual fallback only, not a precise numerical DEM.",
+    "quality_note": "ArcGIS WorldElevation3D Terrain3D is a multi-source elevation service with spatially varying source resolutions (documented service range from about 1000 m to 50 cm in some deployments). The requested output pixel size is a regional resampling grid, not a guarantee of source detail. The actual resolution/provenance varies by location. Optional network/CORS service; fallback remains the local low-resolution visual ETOPO1 proxy.",
+    "requested_pixel_spacing": "Approximately 15 arc-seconds per pixel over the 17° × 9° WGS84 extent (varies in ground distance with latitude).",
+    "request_safety": "The optional Terrain3D GeoTIFF fetch is bounded by a 14-second timeout, a 72 MB transfer cap, a maximum 12 million raster pixels, minimum dimensions, and geographic-bounds checks. Failed or blocked requests leave the local ETOPO1 visual fallback intact."
+  },
+  "desk_objects": {
+    "existing": [
+      "leather-bound atlas/book with page block and cover details",
+      "framed archival portrait and engraved caption",
+      "feather quill and sealed glass ink well",
+      "48-division brass astrolabe",
+      "survey telescope with focus rings and stand",
+      "glass magnifier",
+      "graduated brass-and-walnut scale ruler",
+      "articulated brass plotting dividers",
+      "sealed rolled chart"
+    ],
+    "added_in_6_3_3": "A graduated surveyor compass with brass casing, enamel inset, glass cover, 72 tick marks, cardinal rose, eight fasteners, pivoted north/south needle and very low-amplitude idle movement."
+  },
+  "stability": {
+    "terrain_raster_updates": "Serialized queue shared between land elevation and bathymetry updates; geometry normals are recalculated in yielded row batches.",
+    "optional_network_layers": "Each network layer fails independently to a local layer; fetch response size and raster pixel count are capped.",
+    "scene_transitions": "Crossfade is completed before pagehide/visibility suspension and renderer is resized/resumed on pageshow from the back-forward cache.",
+    "content_reveals": "One-way IntersectionObserver reveals have per-element watchdogs, onInterrupt completion, document-hidden completion and bfcache recovery."
+  }
+}

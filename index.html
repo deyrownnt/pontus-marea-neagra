@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="ro" class="world-loading">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080d10">
+  <meta name="description" content="PONTUS — o explorare vizuală a Mării Negre și a istoricului Gheorghe I. Brătianu.">
+  <title>PONTUS — Gheorghe I. Brătianu și Marea Neagră</title>
+  <link rel="preload" as="image" href="./assets/environment/black-sea-observatory-backdrop.webp" fetchpriority="high">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./src/styles.css">
+  <script type="importmap">{"imports":{"three":"https://cdnjs.cloudflare.com/ajax/libs/three.js/0.172.0/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/","geotiff":"https://cdn.jsdelivr.net/npm/geotiff@2.1.3/+esm"}}</script>
+  <script type="module" src="./src/main.js" onerror="window.PONTUS_BOOT_FAILURE__?.()"></script>
+  <script>
+    window.PONTUS_BOOT_FAILURE__ = () => {
+      const root = document.documentElement;
+      if (root.classList.contains('world-ready')) return;
+      root.classList.add('world-fallback-active');
+      window.PONTUS_LOCAL_3D_FALLBACK?.start?.();
+      document.getElementById('loading-screen')?.classList.add('done');
+      const status = document.getElementById('world-fallback-status');
+      if (status) status.textContent = 'MODULUL PRINCIPAL INDISPONIBIL · MODELUL LOCAL PORNEȘTE';
+    };
+  </script>
+  <script>
+    window.__PONTUS_BOOT_WATCHDOG__ = window.setTimeout(() => {
+      const root = document.documentElement;
+      if (!root.classList.contains('world-ready')) {
+        root.classList.add('world-fallback-active');
+        window.PONTUS_LOCAL_3D_FALLBACK?.start?.();
+        document.getElementById('loading-screen')?.classList.add('done');
+        const status = document.getElementById('world-fallback-status');
+        if (status) status.textContent = 'ÎNCĂRCARE 3D LENTĂ · ATLASUL LOCAL RĂMÂNE VIZIBIL';
+      }
+    }, 26000);
+  </script>
+</head>
+<body>
+  <div class="loading-screen" id="loading-screen" aria-hidden="true">
+    <div class="loading-mark">P<span>·</span></div>
+    <div class="loading-copy"><span>ARHIVA PONTICĂ</span><span id="loading-percent">00</span></div>
+    <div class="loading-line"><i id="loading-line-fill"></i></div>
+  </div>
+
+  <div class="stage" aria-hidden="true">
+    <div class="stage-static-fallback" id="world-fallback">
+      <img src="./assets/black-sea-atlas-concept-uhd.webp" alt="" fetchpriority="high" decoding="async">
+      <div class="stage-fallback-perspective" id="stage-fallback-perspective" aria-hidden="true">
+        <canvas id="world-fallback-3d"></canvas>
+      </div>
+      <svg class="stage-fallback-overlay" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="fallbackRoute" x1="0" x2="1"><stop offset="0" stop-color="#b99565" stop-opacity="0"/><stop offset=".48" stop-color="#e5c58e" stop-opacity=".72"/><stop offset="1" stop-color="#b99565" stop-opacity="0"/></linearGradient>
+          <linearGradient id="fallbackSail" x1="0" x2="1"><stop offset="0" stop-color="#e7dcc5"/><stop offset="1" stop-color="#ad9879"/></linearGradient>
+        </defs>
+        <path class="stage-fallback-route" d="M 470 520 C 620 445 735 435 850 470 S 1060 535 1200 455" fill="none" stroke="url(#fallbackRoute)" stroke-width="2" stroke-dasharray="8 12"/>
+        <g class="stage-fallback-boat" transform="translate(825 468)">
+          <path d="M-62 16 Q-12 34 58 13 L42 35 Q-8 48-48 30Z" fill="#3c2419" stroke="#c59a62" stroke-width="3"/>
+          <path d="M-5 12 L-5 -77" stroke="#684a2d" stroke-width="5"/>
+          <path d="M-1 -69 Q-57 -51 -47 5 L-2 4Z" fill="url(#fallbackSail)" stroke="#e6d4b3" stroke-width="2"/>
+          <path d="M2 -61 Q47 -48 43 3 L3 4Z" fill="#c6b18d" stroke="#ead9ba" stroke-width="2"/>
+          <path d="M-5 -77 L-5 -92" stroke="#c49a61" stroke-width="3"/>
+          <path d="M-42 18 L-31 26 M-20 22 L-9 29 M5 24 L16 28 M27 20 L37 23" stroke="#d6b17b" stroke-width="2"/>
+          <circle cx="-5" cy="-94" r="4" fill="#f1d59f"/>
+        </g>
+      </svg>
+      <div class="stage-fallback-status" id="world-fallback-status">SE PREGĂTEȘTE MODELUL 3D…</div>
+    </div>
+    <canvas id="world"></canvas>
+    <div class="stage-atmosphere" aria-hidden="true"><i class="atmosphere-orb atmosphere-orb-a"></i><i class="atmosphere-orb atmosphere-orb-b"></i><span class="atmosphere-scan"></span></div>
+    <div class="scene-curtain" id="scene-curtain"><span>ARHIVA PONTICĂ</span><i></i></div>
+    <div class="stage-grain"></div>
+    <div class="stage-vignette"></div>
+    <div class="stage-readout" id="stage-readout"><span>SCENA 01</span><i></i><b>BAZINUL PONTIC</b></div>
+    <div class="stage-coordinates" id="stage-coordinates">44° 10′ N<br>28° 38′ E</div>
+    <div class="story-model-status" id="story-model-status" hidden aria-live="polite">
+      <span>MODEL 3D · PONTUS</span><strong data-story-model-message>SE ÎNCARCĂ SCENA…</strong>
+      <i><b data-story-model-progress></b></i>
+    </div>
+    <div class="voyage-progress" aria-live="polite"><div><span>VOIAJUL PONTIC</span><strong id="voyage-progress-value">00%</strong></div><i><b id="voyage-progress-fill"></b></i><small>BOSFOR <span>→</span> CAFFA</small></div>
+  </div>
+  <script src="./src/local-3d-fallback.js"></script>
+
+  <div class="progress-track"><i id="progress-fill"></i></div>
+  <header class="topbar" id="topbar">
+    <a class="brand" href="#top" aria-label="PONTUS acasă"><span class="brand-symbol">P</span><span class="brand-name">PONTUS</span><small>ARHIVA MĂRII NEGRE</small></a>
+    <nav class="desktop-nav" aria-label="Navigare principală">
+      <a href="#intro">INTRODUCERE</a><a href="#bratianu">BRĂTIANU</a><a href="#timeline">CRONOLOGIE</a><a href="#photo-essay">FOTOGRAFII</a><a href="#team">PROIECT</a>
+    </nav>
+    <button class="archive-trigger" id="open-archive"><span class="archive-trigger-icon">↗</span> BIBLIOGRAFIE</button>
+    <button class="menu-trigger" id="menu-trigger" aria-label="Deschide navigarea"><i></i><i></i></button>
+  </header>
+  <nav class="mobile-nav" id="mobile-nav"><a href="#intro">Introducere</a><a href="#bratianu">Gheorghe I. Brătianu</a><a href="#photo-essay">Fotografii</a><a href="#timeline">Cronologie</a><a href="#team">Structura proiectului</a><button id="mobile-open-archive">Deschide bibliografia ↗</button></nav>
+
+  <main id="top">
+    <section class="hero story-section" data-world="map" id="hero">
+      <div class="hero-kicker reveal"><span class="kicker-dot"></span> UN ATLAS ISTORIC INTERACTIV <span class="kicker-rule"></span> DOSAR 01—08</div>
+      <div class="hero-copy">
+        <p class="hero-overline reveal">ISTORIE · GEOGRAFIE · CIVILIZAȚII</p>
+        <h1 class="hero-title"><span class="title-line reveal">Gheorghe I.</span><span class="title-line title-accent reveal">Brătianu</span><span class="title-sub reveal">și <em>Marea Neagră</em></span></h1>
+        <p class="hero-description reveal">O călătorie prin spațiul pontic și prin viața istoricului care i-a cercetat trecutul — de la originile sale până la marile transformări medievale.</p>
+        <div class="hero-credits reveal" id="hero-contributors" aria-label="Participanți la proiect">
+          <div class="hero-credits-label"><span class="hero-credits-pulse"></span><span>REALIZAT DE</span><i></i><small>ECHIPA PROIECTULUI</small></div>
+          <div class="hero-credits-list" id="hero-participant-list" aria-live="polite"></div>
+        </div>
+        <a class="enter-link reveal" href="#intro"><span class="enter-icon">↓</span><span>ÎNCEPE EXPLORAREA</span><small>DERULEAZĂ ÎN JOS</small></a>
+      </div>
+      <div class="hero-bottom reveal"><span>45° 00′ N — 34° 00′ E</span><span>MAREA NEAGRĂ / SPAȚIU ISTORIC</span><span>01 <i>/</i> 08</span></div>
+      <div class="hero-side-note"><span>O MARE, MAI MULTE LUMI</span><i></i><span>SCROLL TO EXPLORE</span></div>
+    </section>
+
+    <section class="intro story-section" id="intro" data-world="map">
+      <div class="section-index reveal"><span>00</span><i></i><span>INTRODUCERE</span></div>
+      <div class="intro-grid">
+        <div class="intro-heading">
+          <p class="eyebrow reveal">UN SPAȚIU DE LEGĂTURI</p>
+          <h2 class="section-title reveal">Marea Neagră<br>nu a fost niciodată<br><em>doar o margine.</em></h2>
+          <p class="intro-lead reveal">A fost o răscruce.</p>
+        </div>
+        <div class="intro-text">
+          <p class="reveal">Așezată între Europa de Sud-Est, Anatolia și stepele nord-pontice, Marea Neagră a conectat comunități, porturi și puteri politice aflate la distanțe mari unele de altele.</p>
+          <p class="reveal">Prin Bosfor și Dardanele, bazinul pontic comunica cu Mediterana. Prin Dunăre, era legat de interiorul continentului. Aceste conexiuni au influențat comerțul, migrațiile, conflictele și schimburile culturale.</p>
+          <p class="reveal">Proiectul urmărește această istorie și o pune în legătură cu opera lui <strong>Gheorghe I. Brătianu</strong>, istoricul care a studiat Marea Neagră ca pe un spațiu istoric unitar.</p>
+          <div class="intro-facts reveal"><div><strong>06</strong><span>STATE<br>RIVERANE</span></div><div><strong>02</strong><span>CONTINENTE<br>CONECTATE</span></div><div><strong>01</strong><span>SPAȚIU<br>ISTORIC</span></div></div>
+        </div>
+      </div>
+      <div class="map-caption reveal"><span>MODEL 3D GEOREFERENȚIAT</span><i></i><span>GSHHG HIGH-RES / GSHHS FALLBACK · EMODNET DTM</span></div><div class="geo-source-status"><i></i><span id="coast-status" data-state="loading">GSHHG HIGH-RES · SE ÎNCARCĂ…</span></div><div class="geo-source-status"><i></i><span id="dem-status" data-state="loading">SE ÎNCARCĂ DATELE BATIMETRICE…</span></div><div class="geo-source-status"><i></i><span id="topography-status" data-state="loading">SE ÎNCARCĂ MODELUL TOPOGRAFIC…</span></div><div class="geo-source-status"><i></i><span id="hillshade-status" data-state="loading">SE ÎNCARCĂ HILLSHADE-UL REGIONAL…</span></div>
+      <div class="map-hotspots" aria-label="Repere pe harta Mării Negre">
+        <button class="map-point point-bosphorus" data-point="Bosfor" data-description="Legătura dintre Marea Neagră și Marea Marmara; prin aceasta, bazinul pontic comunica cu Mediterana."><i></i><span>BOSFOR</span></button>
+        <button class="map-point point-caffa" data-point="Caffa" data-description="Centru comercial genovez important în Crimeea medievală; cucerit de otomani în 1475."><i></i><span>CAFFA</span></button>
+        <button class="map-point point-constanta" data-point="Histria și Tomis" data-description="Orașe de pe litoralul vestic al Mării Negre, relevante pentru istoria antică a Dobrogei."><i></i><span>ȚĂRMUL VESTIC</span></button>
+      </div>
+      <div class="map-tooltip" id="map-tooltip" aria-live="polite"><span>REPERE PONTICE</span><strong id="map-tooltip-title">Selectează un punct</strong><p id="map-tooltip-copy">Explorează câteva repere geografice care vor reveni în capitolele istorice.</p></div>
+    </section>
+
+    <section class="biography story-section" id="bratianu" data-world="archive">
+      <div class="section-index reveal"><span>01</span><i></i><span>GHEORGHE I. BRĂTIANU</span></div>
+      <div class="bio-header">
+        <div><p class="eyebrow reveal">OMUL DIN SPATELE CERCETĂRII</p><h2 class="section-title reveal">Un istoric<br>format la <em>răscruce.</em></h2></div>
+        <div class="bio-summary reveal"><span class="date-range">1898 — 1953</span><p>Istoric, profesor universitar, membru al Academiei Române și cercetător al istoriei medievale. Viața sa a traversat războaie, schimbări politice și transformări profunde ale societății românești.</p></div>
+      </div>
+      <div class="portrait-layout">
+        <figure class="portrait-frame reveal">
+          <div class="portrait-image-wrap"><img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Gh._I._Bratianu.jpg" alt="Portret istoric al lui Gheorghe I. Brătianu" loading="lazy" onerror="this.closest('.portrait-frame').classList.add('portrait-missing')"></div>
+          <figcaption><span>FIG. 01</span><span>GHEORGHE I. BRĂTIANU</span><span>FOTOGRAFIE PUBLICATĂ ÎN 1985</span></figcaption>
+        </figure>
+        <div class="bio-copy">
+          <div class="bio-intro reveal"><span class="large-number">01</span><div><h3>Origini și familie</h3><p>S-a născut la 3 februarie 1898, la Ruginoasa, fiind fiul lui Ion I. C. Brătianu și al Mariei Moruzi-Cuza. A provenit din familia Brătianu, una dintre familiile cu rol important în viața politică a României moderne.</p></div></div>
+          <div class="bio-intro reveal"><span class="large-number">02</span><div><h3>Educație și formare</h3><p>A studiat la Iași și la Paris. În 1923 a obținut doctoratul în filosofie la Cernăuți, iar în 1929 doctoratul în litere la Paris, cu o cercetare despre comerțul genovez în Marea Neagră în secolul al XIII-lea.</p></div></div>
+          <div class="bio-intro reveal"><span class="large-number">03</span><div><h3>Carieră academică</h3><p>În 1924 a devenit profesor la Universitatea din Iași. A condus Institutul de Istorie Universală din Iași, apoi a activat la București și a fost ales membru titular al Academiei Române în 1942.</p></div></div>
+          <div class="bio-intro reveal"><span class="large-number">04</span><div><h3>Ultimii ani</h3><p>După instaurarea regimului comunist, a fost îndepărtat din viața universitară și arestat în 1950. A murit în închisoarea de la Sighet, în aprilie 1953.</p></div></div>
+        </div>
+      </div>
+      <div class="bio-note reveal"><span>NOTĂ BIOGRAFICĂ</span><p>În unele surse, data nașterii apare în stil vechi și stil nou: 21 ianuarie / 3 februarie 1898. Pentru moarte, sursele diferă asupra zilei exacte; aici este indicată luna și anul.</p></div>
+    </section>
+
+
+    <section class="photo-essay story-section" id="photo-essay" data-world="archive">
+      <div class="section-index reveal"><span>01A</span><i></i><span>ALBUM DOCUMENTAR</span></div>
+      <div class="photo-essay-head">
+        <div><p class="eyebrow reveal">URME VIZIBILE ALE PARCURSULUI</p><h2 class="section-title reveal">Locuri care<br>păstrează <em>memoria.</em></h2></div>
+        <p class="photo-essay-intro reveal">Fotografiile nu sunt decor: fiecare imagine este legată de un loc sau de un reper din poveste. Deschide-o pentru a vedea cadrul în format mare și sursa documentară.</p>
+      </div>
+      <div class="photo-essay-grid">
+        <button class="photo-card photo-card-wide reveal" type="button" data-photo="0" aria-label="Deschide fotografia Palatului de la Ruginoasa">
+          <span class="photo-index">01 / RUGINOASA</span><span class="photo-image"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Palatul_Alexandru_Ioan_Cuza_01.jpg/1280px-Palatul_Alexandru_Ioan_Cuza_01.jpg" alt="Palatul Alexandru Ioan Cuza din Ruginoasa" loading="lazy" decoding="async"></span>
+          <span class="photo-caption"><strong>Ruginoasa</strong><small>Localitatea natală a istoricului. Fotografia prezintă palatul istoric din localitate, nu casa exactă a nașterii.</small><i>DESCHIDE ↗</i></span>
+        </button>
+        <button class="photo-card photo-card-tall reveal" type="button" data-photo="1" aria-label="Deschide fotografia Sorbonei din Paris">
+          <span class="photo-index">02 / PARIS</span><span class="photo-image"><img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f1/Sorbonne_Front.jpg/960px-Sorbonne_Front.jpg" alt="Fațada Sorbonei din Paris" loading="lazy" decoding="async"></span>
+          <span class="photo-caption"><strong>Sorbona</strong><small>Unul dintre reperele formării sale academice la Paris.</small><i>DESCHIDE ↗</i></span>
+        </button>
+        <button class="photo-card photo-card-tall reveal" type="button" data-photo="2" aria-label="Deschide fotografia sitului arheologic Histria">
+          <span class="photo-index">03 / SPAȚIUL PONTIC</span><span class="photo-image"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/The_Main_Square_of_the_late_Roman_city%2C_Histria%2C_Moesia_Inferior%2C_Romania_%2828636949588%29.jpg/1280px-The_Main_Square_of_the_late_Roman_city%2C_Histria%2C_Moesia_Inferior%2C_Romania_%2828636949588%29.jpg" alt="Piața principală a orașului antic Histria" loading="lazy" decoding="async"></span>
+          <span class="photo-caption"><strong>Histria</strong><small>Un reper al istoriei antice de pe litoralul vestic al Mării Negre.</small><i>DESCHIDE ↗</i></span>
+        </button>
+        <button class="photo-card photo-card-wide photo-card-last reveal" type="button" data-photo="3" aria-label="Deschide fotografia Memorialului Sighet">
+          <span class="photo-index">04 / SIGHET</span><span class="photo-image"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Memorialul_Victimelor_Comunismului_%C8%99i_al_Rezisten%C8%9Bei_Sighet_01.jpg/1280px-Memorialul_Victimelor_Comunismului_%C8%99i_al_Rezisten%C8%9Bei_Sighet_01.jpg" alt="Fosta închisoare din Sighet, astăzi Memorialul Victimelor Comunismului" loading="lazy" decoding="async"></span>
+          <span class="photo-caption"><strong>Memorialul Sighet</strong><small>Fosta închisoare în care Gheorghe I. Brătianu a murit în aprilie 1953.</small><i>DESCHIDE ↗</i></span>
+        </button>
+        <button class="photo-card photo-card-archive reveal" type="button" data-photo="4" aria-label="Deschide fotografia istorică a Universității din Iași">
+          <span class="photo-index">05 / IAȘI · 1901–1904</span><span class="photo-image"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e0/L%27Universite_de_Jassy.jpg" alt="Fotografie istorică a Universității din Iași, publicată între 1901 și 1904" loading="lazy" decoding="async"></span>
+          <span class="photo-caption"><strong>Universitatea din Iași</strong><small>Imagine de epocă a instituției la care Brătianu a devenit profesor în 1924.</small><i>DESCHIDE ↗</i></span>
+        </button>
+        <button class="photo-card photo-card-archive reveal" type="button" data-photo="5" aria-label="Deschide fotografia Universității din Cernăuți">
+          <span class="photo-index">06 / CERNĂUȚI</span><span class="photo-image"><img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/4/40/University_of_Chernivtsi.jpg/1280px-University_of_Chernivtsi.jpg" alt="Clădirea Universității din Cernăuți" loading="lazy" decoding="async"></span>
+          <span class="photo-caption"><strong>Cernăuți</strong><small>Universitatea la care Brătianu a obținut doctoratul în filosofie, în 1923.</small><i>DESCHIDE ↗</i></span>
+        </button>
+        <button class="photo-card photo-card-archive reveal" type="button" data-photo="6" aria-label="Deschide fotografia Academiei Române">
+          <span class="photo-index">07 / BUCUREȘTI</span><span class="photo-image"><img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cd/AcademiaRomana12rhd.jpg/1280px-AcademiaRomana12rhd.jpg" alt="Clădirea Academiei Române din București" loading="lazy" decoding="async"></span>
+          <span class="photo-caption"><strong>Academia Română</strong><small>Brătianu a fost ales membru titular al Academiei în 1942.</small><i>DESCHIDE ↗</i></span>
+        </button>
+        <button class="photo-card photo-card-archive reveal" type="button" data-photo="7" aria-label="Deschide fotografia lui Gheorghe I. Brătianu înainte de 1950">
+          <span class="photo-index">08 / PORTRET DOCUMENTAR</span><span class="photo-image"><img src="https://upload.wikimedia.org/wikipedia/commons/1/1c/Gheorghe_I._Br%C4%83tianu.jpg" alt="Fotografie documentară cu Gheorghe I. Brătianu, realizată înainte de 1950" loading="lazy" decoding="async"></span>
+          <span class="photo-caption"><strong>În anii activității sale</strong><small>Portret documentar al istoricului, datat înainte de 1950 în fișa Wikimedia Commons.</small><i>DESCHIDE ↗</i></span>
+        </button>
+        <button class="photo-card photo-card-archive reveal" type="button" data-photo="8" aria-label="Deschide fotografia de identificare din detenția lui Gheorghe I. Brătianu">
+          <span class="photo-index">09 / SIGHET · 1950</span><span class="photo-image"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Gheorghe-i-bratianu.jpg/640px-Gheorghe-i-bratianu.jpg" alt="Fotografie de identificare a lui Gheorghe I. Brătianu în detenție" loading="lazy" decoding="async"></span>
+          <span class="photo-caption"><strong>Fotografie din detenție</strong><small>Imagine de arhivă identificată de Wikimedia Commons ca portret al istoricului în detenție.</small><i>DESCHIDE ↗</i></span>
+        </button>
+        <button class="photo-card photo-card-archive reveal" type="button" data-photo="9" aria-label="Deschide documentul de percheziție din detenția de la Sighet">
+          <span class="photo-index">10 / DOCUMENT · 16 MAI 1950</span><span class="photo-image"><img src="https://upload.wikimedia.org/wikipedia/commons/9/98/Rapporto_di_Gheorghe_I._Br%C4%83tianu_%28Carcere_di_Sighet%29.jpg" alt="Raportul de percheziție asociat detenției lui Gheorghe I. Brătianu la Sighet" loading="lazy" decoding="async"></span>
+          <span class="photo-caption"><strong>Un document de detenție</strong><small>Fișa de arhivă indică un raport de percheziție din 16 mai 1950, păstrat ca sursă documentară.</small><i>DESCHIDE ↗</i></span>
+        </button>
+      </div>
+      <p class="photo-essay-note reveal">Imaginile istorice și de patrimoniu sunt însoțite de atribuiri și licențe în bibliografia proiectului. Imaginea de la Ruginoasa reprezintă palatul din localitate, nu locuința exactă a nașterii.</p>
+    </section>
+
+    <section class="timeline story-section" id="timeline" data-world="archive">
+      <div class="section-index reveal"><span>02</span><i></i><span>CRONOLOGIE</span></div>
+      <div class="timeline-head"><p class="eyebrow reveal">REPERE BIOGRAFICE</p><h2 class="section-title reveal">O viață în<br><em>șapte momente.</em></h2><p class="timeline-intro reveal">Selectează un reper. Fiecare dată deschide un fragment din parcursul său.</p></div>
+      <div class="timeline-layout">
+        <div class="timeline-list" role="tablist" aria-label="Momente din viața lui Gheorghe I. Brătianu">
+          <button class="timeline-item is-active" role="tab" aria-selected="true" data-index="0"><span>01</span><strong>1898</strong><small>RUGINOASA</small></button>
+          <button class="timeline-item" role="tab" aria-selected="false" data-index="1"><span>02</span><strong>1917–1919</strong><small>IAȘI ȘI PARIS</small></button>
+          <button class="timeline-item" role="tab" aria-selected="false" data-index="2"><span>03</span><strong>1923</strong><small>CERNĂUȚI</small></button>
+          <button class="timeline-item" role="tab" aria-selected="false" data-index="3"><span>04</span><strong>1924</strong><small>UNIVERSITATEA DIN IAȘI</small></button>
+          <button class="timeline-item" role="tab" aria-selected="false" data-index="4"><span>05</span><strong>1929</strong><small>PARIS</small></button>
+          <button class="timeline-item" role="tab" aria-selected="false" data-index="5"><span>06</span><strong>1942</strong><small>ACADEMIA ROMÂNĂ</small></button>
+          <button class="timeline-item" role="tab" aria-selected="false" data-index="6"><span>07</span><strong>1950–1953</strong><small>SIGHET</small></button>
+        </div>
+        <article class="timeline-detail" role="tabpanel" aria-live="polite"><div class="timeline-detail-top"><span id="timeline-label">01 / ORIGINI</span><span id="timeline-count">01 — 07</span></div><div class="timeline-detail-date" id="timeline-date">1898</div><h3 id="timeline-title">Ruginoasa,<br><em>începutul unei vieți.</em></h3><p id="timeline-copy">Gheorghe I. Brătianu se naște la Ruginoasa, în familia lui Ion I. C. Brătianu și a Mariei Moruzi-Cuza.</p><div class="timeline-meter"><i id="timeline-meter-fill"></i></div><div class="timeline-foot"><span>CRONOLOGIE BIOGRAFICĂ</span><span>SELECTEAZĂ UN ALT AN ↗</span></div></article>
+      </div>
+    </section>
+
+    <section class="places story-section" data-world="archive">
+      <div class="section-index reveal"><span>03</span><i></i><span>GEOGRAFIA UNEI VIEȚI</span></div>
+      <div class="places-head"><p class="eyebrow reveal">CINCI LOCURI, UN PARCURS</p><h2 class="section-title reveal">De la <em>Ruginoasa</em><br>la Sighet.</h2><p class="places-intro reveal">Locurile nu sunt decor. Ele marchează etape distincte ale formării, activității și destinului istoricului.</p></div>
+      <div class="places-grid">
+        <article class="place-card reveal"><span>01 / ORIGINI</span><h3>Ruginoasa</h3><p>Locul nașterii, în județul Iași.</p><small>1898</small></article>
+        <article class="place-card reveal"><span>02 / STUDII</span><h3>Iași</h3><p>Orașul primilor ani de studiu și al începutului carierei universitare.</p><small>1917–1940</small></article>
+        <article class="place-card reveal"><span>03 / FORMARE</span><h3>Paris</h3><p>Studiile și cercetarea doctorală despre comerțul genovez.</p><small>1920s</small></article>
+        <article class="place-card reveal"><span>04 / ACTIVITATE</span><h3>București</h3><p>Activitatea academică și conducerea institutului de istorie.</p><small>1941–1947</small></article>
+        <article class="place-card place-card-last reveal"><span>05 / REPRESIUNE</span><h3>Sighet</h3><p>Închisoarea în care a murit în aprilie 1953.</p><small>1950–1953</small></article>
+      </div>
+    </section>
+
+    <section class="team story-section" id="team" data-world="map">
+      <div class="section-index reveal"><span>04</span><i></i><span>STRUCTURA PROIECTULUI</span></div>
+      <div class="team-header"><p class="eyebrow reveal">OPT PERSPECTIVE ASUPRA ACELEIAȘI TEME</p><h2 class="section-title reveal">Povestea continuă<br><em>dincolo de biografie.</em></h2><p class="team-intro reveal">Cele opt capitole urmăresc viața istoricului, opera sa și transformările bazinului pontic — de la coloniile grecești la schimbările geopolitice ale epocii otomane și locul României în această istorie.</p></div>
+      <div class="team-grid" id="team-grid"></div>
+    </section>
+    <div id="contribution-sections"></div>
+
+    <section class="closing story-section" id="closing" data-world="map">
+      <div class="closing-line reveal"></div><p class="eyebrow reveal">PONTUS / ARHIVĂ ISTORICĂ</p><h2 class="closing-title reveal">Înțelegem o mare<br>prin <em>poveștile ei.</em></h2><a class="closing-link reveal" href="#top">ÎNAPOI LA ÎNCEPUT <span>↑</span></a><div class="closing-foot"><span>GHEORGHE I. BRĂTIANU ȘI MAREA NEAGRĂ</span><span>PROIECT EDUCAȚIONAL · 2026</span></div>
+    </section>
+  </main>
+
+  <footer class="footer"><a class="brand" href="#top"><span class="brand-symbol">P</span><span class="brand-name">PONTUS</span><small>ARHIVA MĂRII NEGRE</small></a><p>Un proiect despre istorie, cercetare și spațiul pontic.</p><button id="footer-archive">SURSE ȘI BIBLIOGRAFIE ↗</button></footer>
+
+  <div class="archive-shell" id="archive-shell" aria-hidden="true"><button class="archive-scrim" id="archive-scrim" aria-label="Închide bibliografia"></button><aside class="archive-panel" role="dialog" aria-modal="true" aria-labelledby="archive-heading"><div class="archive-top"><span>INDEX DOCUMENTAR / PONTUS</span><button id="close-archive" aria-label="Închide">×</button></div><div class="archive-title-block"><p class="eyebrow">DOSAR DE SURSE</p><h2 id="archive-heading">Urmele<br><em>cercetării.</em></h2><p>Surse universitare, cataloage de bibliotecă, studii de specialitate, documente și imagini atribuite. Fiecare referință deschide pagina originală.</p></div><div class="archive-search"><span>⌕</span><input id="archive-search" type="search" placeholder="Caută autor, titlu sau categorie…"></div><div class="archive-filters"><button class="active" data-filter="all">TOATE <small>16</small></button><button data-filter="text">TEXTE <small>04</small></button><button data-filter="image">IMAGINI <small>12</small></button></div><div class="archive-list" id="archive-list"></div><div class="archive-credit"><span>NOTĂ EDITORIALĂ</span><p>Imaginile de arhivă sunt atribuite surselor originale. Pentru reutilizare, consultați licența afișată pe pagina fiecărui fișier.</p></div></aside></div>
+
+
+  <dialog class="photo-lightbox" id="photo-lightbox" aria-label="Arhivă fotografică PONTUS">
+    <div class="photo-lightbox-top"><span id="lightbox-counter">IMAGINE 01 / 10</span><div class="photo-lightbox-controls"><button id="lightbox-prev" type="button" aria-label="Fotografia anterioară">←</button><button id="lightbox-next" type="button" aria-label="Fotografia următoare">→</button><button id="lightbox-close" type="button" aria-label="Închide fotografia">×</button></div></div>
+    <div class="photo-lightbox-progress"><i id="lightbox-progress-fill"></i></div>
+    <figure><img id="lightbox-image" alt=""><figcaption><strong id="lightbox-title"></strong><span id="lightbox-caption"></span><a id="lightbox-source" target="_blank" rel="noopener noreferrer">SURSĂ ȘI LICENȚĂ ↗</a></figcaption></figure>
+  </dialog>
+
+  <div class="map-detail" id="map-detail" aria-hidden="true"><button id="map-detail-close" aria-label="Închide">×</button><span>REPERE PONTICE</span><strong id="map-detail-title"></strong><p id="map-detail-text"></p></div>
+  <div class="cursor" id="cursor" aria-hidden="true"><span>OPEN</span></div>
+  <script src="./src/reveal-runtime.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+</body>
+</html>
